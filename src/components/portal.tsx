@@ -39,6 +39,7 @@ import {
   markMyNotificationsRead,
 } from "@/server/actions";
 import { Button } from "./ui/button";
+import { BrandLogo } from "./brand-logo";
 import { Dialog } from "./ui/dialog";
 import { Calendar, Status } from "./calendar";
 import { BookingForm } from "./booking-form";
@@ -343,12 +344,7 @@ export function Portal({
       )}
       <aside className={`sidebar ${mobile ? "mobile-open" : ""}`}>
         <Link className="brand" href="/">
-          <span className="brand-mark">
-            <Clapperboard size={22} />
-          </span>
-          <span className="brand-word">
-            brill<span className="brand-sub">CREATIONS</span>
-          </span>
+          <BrandLogo priority />
         </Link>
         <div className="workspace-label">PRODUCTION WORKSPACE</div>
         <nav aria-label="Main navigation">

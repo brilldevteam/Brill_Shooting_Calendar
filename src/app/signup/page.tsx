@@ -1,9 +1,10 @@
-import { Clapperboard, ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signUp } from "@/server/actions";
 import { getProfile, hasAccounts } from "@/server/auth";
 import { PasswordField } from "@/components/password-field";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,7 @@ export default async function SignUpPage({
     <main className="login signup-page">
       <section className="login-brand">
         <div className="brand">
-          <span className="brand-mark">
-            <Clapperboard />
-          </span>
-          <span>
-            brill<span className="brand-sub">CREATIONS</span>
-          </span>
+          <BrandLogo priority />
         </div>
         <div>
           <span className="eyebrow">YOUR PRODUCTION CALENDAR</span>

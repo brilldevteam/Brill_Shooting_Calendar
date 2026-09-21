@@ -313,25 +313,24 @@ td strong {
   line-height: 1;
   letter-spacing: -1px;
 }
-.brand-mark {
-  display: inline-flex;
-  width: 39px;
-  height: 42px;
-  background: var(--amber);
-  border-radius: 8px;
-  align-items: center;
-  justify-content: center;
-  color: var(--navy);
-}
-.brand-sub {
+.brand-logo-frame {
   display: block;
-  font-size: 7px;
-  letter-spacing: 3px;
-  font-weight: 500;
-  margin-top: 6px;
+  width: 210px;
+  height: 62px;
+  overflow: hidden;
 }
-.brand-word {
-  padding-top: 1px;
+.brand-logo {
+  display: block;
+  width: 210px;
+  max-width: none;
+  height: auto;
+}
+.sidebar .brand-logo-frame {
+  width: 175px;
+  height: 52px;
+}
+.sidebar .brand-logo {
+  width: 175px;
 }
 .app-shell {
   --sidebar: 232px;
@@ -1051,7 +1050,9 @@ td strong {
   padding: 0;
   justify-content: center;
 }
-.nav-collapsed .brand-word,
+.nav-collapsed .sidebar .brand-logo-frame {
+  width: 42px;
+}
 .nav-collapsed .workspace-label,
 .nav-collapsed nav button span,
 .nav-collapsed nav button em,
@@ -2296,7 +2297,6 @@ td strong {
     visibility: visible;
     transform: translateX(0);
   }
-  .nav-collapsed .sidebar .brand-word,
   .nav-collapsed .sidebar .workspace-label,
   .nav-collapsed .sidebar nav button span {
     display: block;
@@ -2307,6 +2307,9 @@ td strong {
   .nav-collapsed .sidebar .brand {
     justify-content: flex-start;
     padding-left: 10px;
+  }
+  .nav-collapsed .sidebar .brand-logo-frame {
+    width: 175px;
   }
   .collapse-button {
     display: none;

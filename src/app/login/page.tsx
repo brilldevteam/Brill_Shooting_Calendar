@@ -1,9 +1,10 @@
-import { Clapperboard, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { signIn } from "@/server/actions";
 import { hasAccounts } from "@/server/auth";
 import { PasswordField } from "@/components/password-field";
+import { BrandLogo } from "@/components/brand-logo";
 export const dynamic = "force-dynamic";
 export default async function Login({
   searchParams,
@@ -16,12 +17,7 @@ export default async function Login({
     <main className="login">
       <section className="login-brand">
         <div className="brand">
-          <span className="brand-mark">
-            <Clapperboard />
-          </span>
-          <span>
-            brill<span className="brand-sub">CREATIONS</span>
-          </span>
+          <BrandLogo priority />
         </div>
         <div>
           <span className="eyebrow">MAKE ROOM FOR GREAT WORK</span>

@@ -1,17 +1,13 @@
-import { Clapperboard, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { initializeWorkspace } from "@/server/actions";
 import { PasswordField } from "@/components/password-field";
+import { BrandLogo } from "@/components/brand-logo";
 export function Setup({ error }: { error?: string }) {
   return (
     <main className="login">
       <section className="login-brand">
         <div className="brand">
-          <span className="brand-mark">
-            <Clapperboard />
-          </span>
-          <span>
-            brill<span className="brand-sub">CREATIONS</span>
-          </span>
+          <BrandLogo priority />
         </div>
         <div>
           <span className="eyebrow">YOUR PRODUCTION WORKSPACE</span>
