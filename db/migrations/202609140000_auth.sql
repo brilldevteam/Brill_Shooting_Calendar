@@ -1,0 +1,12 @@
+create role anon;
+create role authenticated;
+create role service_role bypassrls;
+create schema auth;
+create table auth.users (id uuid primary key default gen_random_uuid(),email text not null unique,password_hash text not null,must_change_password boolean not null default false,created_at timestamptz not null default now());
+create table auth.sessions(token_hash text primary key,user_id uuid not null references auth.users(id) on delete cascade,expires_at timestamptz not null,created_at timestamptz not null default now());
+create index sessions_expiry on auth.sessions(expires_at);
+create table auth.login_attempts(key text primary key,attempts integer not null default 0,window_start timestamptz not null default now());
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+grant usage on schema public,auth to authenticated,anon,service_role;
+grant execute on function auth.uid() to authenticated,anon,service_role;
+revoke all on all tables in schema auth from public,anon,authenticated;

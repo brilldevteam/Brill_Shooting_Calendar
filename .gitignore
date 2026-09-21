@@ -1,0 +1,22 @@
+node_modules/
+.next/
+.env*
+!.env.example
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.npm-cache/
+.env.seed-accounts
+.data/
+.docker-local/
+.playwright-browsers/
+.backups/
+
+# Local editor, OS and agent files
+.DS_Store
+Thumbs.db
+*.log
+AGENTS.md
+CLAUDE.md
+docs/IMPLEMENTATION_PLAN.md

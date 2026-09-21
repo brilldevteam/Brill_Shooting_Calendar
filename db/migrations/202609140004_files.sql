@@ -1,0 +1,2 @@
+alter table public.booking_files add constraint allowed_file_type check(file_type in ('application/pdf','image/jpeg','image/png','image/webp','text/plain','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.openxmlformats-officedocument.presentationml.presentation'));
+alter table public.booking_files add constraint safe_storage_path check(storage_path !~ '(^/|\.\.|\\)' and length(storage_path)<700);
