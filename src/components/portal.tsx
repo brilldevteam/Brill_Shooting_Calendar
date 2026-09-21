@@ -29,6 +29,8 @@ import {
   Menu,
   Download,
   RefreshCw,
+  ChevronDown,
+  KeyRound,
 } from "lucide-react";
 import type { Booking, Json, PortalData } from "@/types/domain";
 import {
@@ -78,6 +80,8 @@ export function Portal({
   const [offline, setOffline] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationMenu = useRef<HTMLDivElement>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileMenu = useRef<HTMLDivElement>(null);
   const [removeBlock, setRemoveBlock] = useState<string | null>(null);
   useEffect(() => {
     const off = () => setOffline(true),
@@ -99,6 +103,16 @@ export function Portal({
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
   }, [notificationsOpen]);
+  useEffect(() => {
+    if (!profileOpen) return;
+    const close = (event: PointerEvent) => {
+      if (!profileMenu.current?.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [profileOpen]);
   const admin = data.profile.role !== "client";
   const superAdmin = data.profile.role === "super_admin";
   const zone = data.rules.timezone;
@@ -375,12 +389,6 @@ export function Portal({
             {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             <span>Collapse sidebar</span>
           </button>
-          <form action={signOut}>
-            <button className="signout" title="Sign out">
-              <LogOut size={18} />
-              <span>Sign out</span>
-            </button>
-          </form>
         </div>
       </aside>
       <div className="main-shell">
@@ -412,7 +420,10 @@ export function Portal({
                 }
                 aria-expanded={notificationsOpen}
                 aria-haspopup="dialog"
-                onClick={() => setNotificationsOpen((open) => !open)}
+                onClick={() => {
+                  setProfileOpen(false);
+                  setNotificationsOpen((open) => !open);
+                }}
               >
                 <Bell size={17} strokeWidth={1.9} />
                 {notificationCount > 0 && (
@@ -493,12 +504,53 @@ export function Portal({
               )}
             </div>
             <span className="topbar-divider" />
-            <span className="avatar user-avatar">
-              {data.profile.name.slice(0, 2).toUpperCase()}
-            </span>
-            <div className="profile-name">
-              <strong>{data.profile.name}</strong>
-              <small>{data.profile.role.replaceAll("_", " ")}</small>
+            <div className="profile-menu" ref={profileMenu}>
+              <button
+                type="button"
+                className="profile-trigger"
+                aria-label="Open account menu"
+                aria-expanded={profileOpen}
+                aria-haspopup="menu"
+                onClick={() => {
+                  setNotificationsOpen(false);
+                  setProfileOpen((open) => !open);
+                }}
+              >
+                <span className="avatar user-avatar">
+                  {data.profile.name.slice(0, 2).toUpperCase()}
+                </span>
+                <span className="profile-name">
+                  <strong>{data.profile.name}</strong>
+                  <small>{data.profile.role.replaceAll("_", " ")}</small>
+                </span>
+                <ChevronDown
+                  className={
+                    profileOpen ? "profile-chevron is-open" : "profile-chevron"
+                  }
+                  size={14}
+                />
+              </button>
+              {profileOpen && (
+                <div className="profile-dropdown" role="menu">
+                  <div className="profile-dropdown-heading">
+                    <strong>{data.profile.name}</strong>
+                    <small>{data.profile.email}</small>
+                  </div>
+                  <Link href="/account" role="menuitem">
+                    <KeyRound size={16} />
+                    <span>
+                      Change password
+                      <small>Update your sign-in password</small>
+                    </span>
+                  </Link>
+                  <form action={signOut}>
+                    <button type="submit" role="menuitem">
+                      <LogOut size={16} />
+                      <span>Sign out</span>
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
           </div>
         </header>
