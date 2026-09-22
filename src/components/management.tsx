@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { fromZonedTime } from "date-fns-tz";
 import { manageRecord, inviteUser, resetUserPassword } from "@/server/actions";
 import type { Json, PortalData } from "@/types/domain";
@@ -25,7 +24,6 @@ export function ManagementForm({
   onDone: () => void;
   initial?: Record<string, Json>;
 }) {
-  const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [password, setPassword] = useState("");
@@ -335,7 +333,6 @@ export function ManagementForm({
     setBusy(false);
     if (result.error) setError(result.error);
     else {
-      router.refresh();
       if ("password" in result && typeof result.password === "string")
         setPassword(result.password);
       else onDone();
@@ -519,7 +516,6 @@ export function ManagementForm({
   );
 }
 export function Settings({ data }: { data: PortalData }) {
-  const router = useRouter();
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const r = data.rules;
@@ -548,7 +544,6 @@ export function Settings({ data }: { data: PortalData }) {
         "Settings saved. Existing confirmed cancellation deadlines remain unchanged.",
     );
     setBusy(false);
-    if (!result.error) router.refresh();
   }
   return (
     <section className="panel settings-panel">

@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useNow } from "@/lib/use-now";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { formatInTimeZone } from "date-fns-tz";
 import {
   LayoutDashboard,
@@ -72,7 +71,6 @@ export function Portal({
   data: PortalData;
   initialBookingId?: string | null;
 }) {
-  const router = useRouter();
   const now = useNow();
   const [tab, setTab] = useState("overview");
   const [collapsed, setCollapsed] = useState(false);
@@ -210,7 +208,6 @@ export function Portal({
   const success = () => {
     setManage("");
     setFlash("Changes saved successfully.");
-    router.refresh();
   };
   async function retry(id: string) {
     const result = await manageRecord("retry_notification", { id });
@@ -218,7 +215,6 @@ export function Portal({
       result.error ||
         "Notification queued for retry. The delivery worker will process it.",
     );
-    router.refresh();
   }
   async function retryFailedNotifications(ids: string[]) {
     for (const id of ids) await retry(id);
@@ -226,7 +222,6 @@ export function Portal({
   async function markAllNotificationsRead() {
     const result = await markMyNotificationsRead();
     if (result.error) setFlash(result.error);
-    router.refresh();
   }
   function exportLedger() {
     const rows = [
@@ -1499,7 +1494,6 @@ export function Portal({
               setFlash(
                 "Request saved. Approval is required before confirmation.",
               );
-              router.refresh();
             }}
           />
         )}
@@ -1564,7 +1558,6 @@ export function Portal({
               });
               setFlash(result.error || "Time unblocked.");
               setRemoveBlock(null);
-              router.refresh();
             }}
           >
             Confirm unblock

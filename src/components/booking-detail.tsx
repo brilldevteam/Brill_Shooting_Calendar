@@ -120,7 +120,6 @@ export function BookingDetail({
     setBusy(false);
     if (result.error) setError(result.error);
     else {
-      router.refresh();
       onDone();
     }
   }
