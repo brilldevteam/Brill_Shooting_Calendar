@@ -4,16 +4,16 @@ test("development client preview has no admin controls or other client identitie
 }) => {
   await page.goto("/preview?role=client");
   await expect(
-    page.getByRole("heading", { name: "A clear view of what’s next." }),
+    page.getByRole("heading", { name: "Ready for your next shoot?" }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Clients & users", exact: true }),
   ).toHaveCount(0);
   await page
-    .getByRole("button", { name: "View calendar", exact: true })
+    .getByRole("button", { name: "Open calendar", exact: true })
     .click();
   await expect(
-    page.getByRole("heading", { name: "Shooting calendar", exact: true }),
+    page.getByRole("heading", { name: "Calendar", exact: true }),
   ).toBeVisible();
   await expect(
     page.getByText("DEMO · Forma Wellness", { exact: true }),

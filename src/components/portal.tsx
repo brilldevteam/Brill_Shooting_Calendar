@@ -58,6 +58,13 @@ const navigation = [
   { id: "audit", label: "Audit history", icon: History, admin: true },
   { id: "settings", label: "Settings", icon: Settings2, admin: true },
 ];
+const clientNavigation = [
+  { id: "overview", label: "Home", icon: LayoutDashboard },
+  { id: "calendar", label: "Calendar", icon: CalendarDays },
+  { id: "bookings", label: "My shoots", icon: ClipboardList },
+  { id: "contracts", label: "My sessions", icon: Wallet },
+  { id: "notifications", label: "Updates", icon: Bell },
+];
 export function Portal({
   data,
   initialBookingId = null,
@@ -115,6 +122,7 @@ export function Portal({
     return () => document.removeEventListener("pointerdown", close);
   }, [profileOpen]);
   const admin = data.profile.role !== "client";
+  const visibleNavigation = admin ? navigation : clientNavigation;
   const superAdmin = data.profile.role === "super_admin";
   const zone = data.rules.timezone;
   const today = formatInTimeZone(new Date(), zone, "yyyy-MM-dd");
@@ -348,25 +356,23 @@ export function Portal({
         </Link>
         <div className="workspace-label">PRODUCTION WORKSPACE</div>
         <nav aria-label="Main navigation">
-          {navigation
-            .filter((n) => !n.admin || admin)
-            .map((n) => (
-              <button
-                key={n.id}
-                title={n.label}
-                className={tab === n.id ? "nav-active" : ""}
-                onClick={() => {
-                  setTab(n.id);
-                  setMobile(false);
-                }}
-              >
-                <n.icon size={19} />
-                <span>{n.label}</span>
-                {n.id === "bookings" && pending.length > 0 && (
-                  <em>{pending.length}</em>
-                )}
-              </button>
-            ))}
+          {visibleNavigation.map((n) => (
+            <button
+              key={n.id}
+              title={n.label}
+              className={tab === n.id ? "nav-active" : ""}
+              onClick={() => {
+                setTab(n.id);
+                setMobile(false);
+              }}
+            >
+              <n.icon size={19} />
+              <span>{n.label}</span>
+              {n.id === "bookings" && pending.length > 0 && (
+                <em>{pending.length}</em>
+              )}
+            </button>
+          ))}
         </nav>
         <div className="sidebar-bottom">
           <div className="sidebar-note">
@@ -399,7 +405,9 @@ export function Portal({
             </button>
             <span className="breadcrumb">
               Workspace <ChevronRight size={14} />{" "}
-              <strong>{navigation.find((n) => n.id === tab)?.label}</strong>
+              <strong>
+                {visibleNavigation.find((n) => n.id === tab)?.label}
+              </strong>
             </span>
           </div>
           <div className="row">
@@ -564,43 +572,58 @@ export function Portal({
               </button>
             </div>
           )}
-          <div className="page-heading">
-            <div>
-              <span className="eyebrow">
-                {admin
-                  ? "BRILL CREATIONS / OPERATIONS"
-                  : "YOUR CREATIVE WORKSPACE"}
-              </span>
-              <h1>
-                {tab === "overview"
-                  ? `A clear view of what’s next.`
-                  : navigation.find((n) => n.id === tab)?.label}
-              </h1>
-              <p>
-                {tab === "overview"
-                  ? `Welcome back, ${data.profile.name.split(" ")[0]}. ${pending.length ? `You have ${pending.length} request${pending.length === 1 ? "" : "s"} awaiting approval.` : "Let’s make your next production a great one."}`
-                  : tab === "calendar"
-                    ? "Make space for your next great shoot. All times are in " +
-                      zone +
-                      "."
-                    : tab === "contracts"
-                      ? "Every session accounted for. Every allocation kept intact."
-                      : "Keep your production moving with everything in one place."}
-              </p>
-            </div>
-            <div className="row heading-actions">
-              {admin && (
-                <Button variant="outline" onClick={() => openManage("block")}>
-                  <Ban size={16} /> Block time
+          {(admin || tab !== "overview") && (
+            <div className="page-heading">
+              <div>
+                <span className="eyebrow">
+                  {admin
+                    ? "BRILL CREATIONS / OPERATIONS"
+                    : "YOUR CREATIVE WORKSPACE"}
+                </span>
+                <h1>
+                  {tab === "overview"
+                    ? `A clear view of what’s next.`
+                    : visibleNavigation.find((n) => n.id === tab)?.label}
+                </h1>
+                <p>
+                  {tab === "overview"
+                    ? `Welcome back, ${data.profile.name.split(" ")[0]}. ${pending.length ? `You have ${pending.length} request${pending.length === 1 ? "" : "s"} awaiting approval.` : "Let’s make your next production a great one."}`
+                    : tab === "calendar"
+                      ? "Make space for your next great shoot. All times are in " +
+                        zone +
+                        "."
+                      : tab === "contracts"
+                        ? "Every session accounted for. Every allocation kept intact."
+                        : "Keep your production moving with everything in one place."}
+                </p>
+              </div>
+              <div className="row heading-actions">
+                {admin && (
+                  <Button variant="outline" onClick={() => openManage("block")}>
+                    <Ban size={16} /> Block time
+                  </Button>
+                )}
+                <Button onClick={() => openCreate()}>
+                  <Plus size={17} />
+                  {admin ? "New booking" : "Request a shoot"}
                 </Button>
-              )}
-              <Button onClick={() => openCreate()}>
-                <Plus size={17} />
-                {admin ? "New booking" : "Request a shoot"}
-              </Button>
+              </div>
             </div>
-          </div>
-          {tab === "overview" && (
+          )}
+          {tab === "overview" && !admin && (
+            <ClientHome
+              name={data.profile.name.split(" ")[0]}
+              available={monthAvailable}
+              pending={pending.length}
+              upcoming={upcoming}
+              totalRemaining={total - used}
+              formatDate={fmt}
+              onRequest={() => openCreate()}
+              onOpenBooking={setBookingId}
+              onNavigate={setTab}
+            />
+          )}
+          {tab === "overview" && admin && (
             <>
               <div className="stats-grid">
                 <Stat
@@ -1548,6 +1571,155 @@ export function Portal({
           </Button>
         </div>
       </Dialog>
+    </div>
+  );
+}
+function ClientHome({
+  name,
+  available,
+  pending,
+  upcoming,
+  totalRemaining,
+  formatDate,
+  onRequest,
+  onOpenBooking,
+  onNavigate,
+}: {
+  name: string;
+  available: number;
+  pending: number;
+  upcoming: Booking[];
+  totalRemaining: number;
+  formatDate: (date: string, pattern?: string) => string;
+  onRequest: () => void;
+  onOpenBooking: (id: string) => void;
+  onNavigate: (tab: string) => void;
+}) {
+  const nextShoot = upcoming[0];
+  return (
+    <div className="client-home">
+      <section className="client-welcome">
+        <div>
+          <span className="eyebrow">WELCOME BACK, {name.toUpperCase()}</span>
+          <h1>Ready for your next shoot?</h1>
+          <p>
+            Choose a date and tell us what you need. Brill will handle the rest.
+          </p>
+        </div>
+        <Button onClick={onRequest}>
+          <Plus size={18} /> Request a shoot
+        </Button>
+      </section>
+
+      <div className="client-quick-stats">
+        <button onClick={() => onNavigate("contracts")}>
+          <span className="client-stat-icon">
+            <Video size={20} />
+          </span>
+          <span>
+            <strong>{available}</strong>
+            <small>Available this month</small>
+          </span>
+          <ChevronRight size={18} />
+        </button>
+        <button onClick={() => onNavigate("bookings")}>
+          <span className="client-stat-icon amber">
+            <Clock3 size={20} />
+          </span>
+          <span>
+            <strong>{pending}</strong>
+            <small>Waiting for approval</small>
+          </span>
+          <ChevronRight size={18} />
+        </button>
+        <button onClick={() => onNavigate("contracts")}>
+          <span className="client-stat-icon">
+            <CheckCircle2 size={20} />
+          </span>
+          <span>
+            <strong>{totalRemaining}</strong>
+            <small>Total sessions left</small>
+          </span>
+          <ChevronRight size={18} />
+        </button>
+      </div>
+
+      <div className="client-home-grid">
+        <section className="client-next-shoot">
+          <div className="client-section-title">
+            <div>
+              <span className="eyebrow">YOUR SCHEDULE</span>
+              <h2>Next shoot</h2>
+            </div>
+            <button onClick={() => onNavigate("calendar")}>
+              Open calendar <ArrowUpRight size={14} />
+            </button>
+          </div>
+          {nextShoot ? (
+            <button
+              className="client-shoot-card"
+              onClick={() => onOpenBooking(nextShoot.id)}
+            >
+              <span className="client-date-card">
+                <small>{formatDate(nextShoot.start_at, "MMM")}</small>
+                <strong>{formatDate(nextShoot.start_at, "dd")}</strong>
+                <em>{formatDate(nextShoot.start_at, "EEE")}</em>
+              </span>
+              <span className="client-shoot-copy">
+                <Status value={nextShoot.status} />
+                <strong>{nextShoot.subject}</strong>
+                <small>
+                  {formatDate(nextShoot.start_at, "HH:mm")} –{" "}
+                  {formatDate(nextShoot.end_at, "HH:mm")}
+                </small>
+                <small>{nextShoot.location}</small>
+              </span>
+              <ChevronRight size={20} />
+            </button>
+          ) : (
+            <div className="client-empty-shoot">
+              <span className="client-empty-icon">
+                <CalendarDays size={28} />
+              </span>
+              <div>
+                <h3>No shoot booked yet</h3>
+                <p>Your confirmed shoot will appear here.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={onRequest}>
+                Choose a date
+              </Button>
+            </div>
+          )}
+        </section>
+
+        <section className="client-how-it-works">
+          <span className="eyebrow">SIMPLE FROM START TO FINISH</span>
+          <h2>How booking works</h2>
+          <ol>
+            <li>
+              <span>1</span>
+              <div>
+                <strong>Send your request</strong>
+                <small>Pick a date and share the shoot details.</small>
+              </div>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <strong>Brill confirms it</strong>
+                <small>We review availability and approve your slot.</small>
+              </div>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <strong>Get ready to create</strong>
+                <small>Your confirmed shoot appears on the calendar.</small>
+              </div>
+            </li>
+          </ol>
+        </section>
+      </div>
     </div>
   );
 }
